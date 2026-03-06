@@ -6,7 +6,7 @@ export const fetchMovies = (): Promise<Movie[]> => {
     return apiFetcher<Movie[]>("/movies");
 }
 
-export const createMovie = (data: Omit<MovieFormData, 'directorId' | 'genreId' | 'youtubeTrailerId' | 'actorIds' | 'platformIds'>): Promise<Movie> => {
+export const createMovie = (data: Omit<MovieFormData, 'directorId' | 'genreId' | 'youtubeTrailerId' | 'actorIds' | 'platformIds' | 'prizeIds'>): Promise<Movie> => {
     return apiFetcher<Movie>("/movies", {
         method: "POST",
         body: JSON.stringify(data),
@@ -17,7 +17,7 @@ export const fetchMovieById = (id: string): Promise<Movie> => {
     return apiFetcher<Movie>(`/movies/${id}`);
 }
 
-export const updateMovie = (id: string, data: Omit<MovieFormData, 'directorId' | 'genreId' | 'youtubeTrailerId' | 'actorIds' | 'platformIds'>): Promise<Movie> => {
+export const updateMovie = (id: string, data: Omit<MovieFormData, 'directorId' | 'genreId' | 'youtubeTrailerId' | 'actorIds' | 'platformIds' | 'prizeIds'>): Promise<Movie> => {
     return apiFetcher<Movie>(`/movies/${id}`, {
         method: "PUT",
         body: JSON.stringify(data),
@@ -67,5 +67,18 @@ export const setMovieDirector = (movieId: string, directorId: string): Promise<M
 export const setMovieGenre = (movieId: string, genreId: string): Promise<Movie> => {
     return apiFetcher<Movie>(`/movies/${movieId}/genres/${genreId}`, {
         method: "POST",
+    });
+}
+
+// movie - prize m2m
+export const addPrizeToMovie = (movieId: string, prizeId: string): Promise<Movie> => {
+    return apiFetcher<Movie>(`/movies/${movieId}/prizes/${prizeId}`, {
+        method: "POST",
+    });
+}
+
+export const removePrizeFromMovie = (movieId: string, prizeId: string): Promise<void> => {
+    return apiFetcher<void>(`/movies/${movieId}/prizes/${prizeId}`, {
+        method: "DELETE",
     });
 }

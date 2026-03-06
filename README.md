@@ -1,3 +1,15 @@
+## ENDPOINTS MIDTERM
+List actor: /actors
+Create actor /actors/new
+
+List movies: /movies
+Create actor /movies/new
+
+List prizes: /prizes
+Create prizes /prizes/new
+
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

@@ -198,6 +198,36 @@ export default function MovieDetailPage({ movieId }: MovieDetailPageProps) {
                     </div>
                 </div>
 
+                {/* Prizes */}
+                <div className="border-t p-6">
+                    <h2 className="text-xl font-bold mb-4">🏆 Prizes</h2>
+                    {movie.prizes && movie.prizes.length > 0 ? (
+                        <div className="flex flex-wrap gap-3">
+                            {movie.prizes.map((prize) => (
+                                <div
+                                    key={prize.id}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                                        prize.status === "won"
+                                            ? "bg-yellow-100 text-yellow-800 border border-yellow-300"
+                                            : "bg-gray-100 text-gray-800 border border-gray-300"
+                                    }`}
+                                >
+                                    <span className="font-semibold">{prize.name}</span>
+                                    <span className="mx-1">•</span>
+                                    <span>{prize.category}</span>
+                                    <span className="mx-1">•</span>
+                                    <span>{prize.year}</span>
+                                    <span className="ml-2 text-xs uppercase">
+                                        ({prize.status})
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-gray-500">No prizes yet</p>
+                    )}
+                </div>
+
                 {/* YouTube Trailer Section */}
                 {movie.youtubeTrailer && (
                     <div className="border-t p-6">

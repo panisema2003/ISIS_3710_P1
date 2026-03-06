@@ -37,6 +37,7 @@ const navItems: NavItem[] = [
         subItems: [
             { name: "Genres", path: "/genres" },
             { name: "Platforms", path: "/platforms" },
+            { name: "Prizes", path: "/prizes" },
         ]
     },
 ];

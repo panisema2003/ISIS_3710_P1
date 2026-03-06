@@ -10,6 +10,7 @@ import { Genre } from "@/modules/genres/types/genre.type";
 import { Actor } from "@/modules/actors/types/actor.type";
 import { Platform } from "@/modules/platforms/types/platform.type";
 import { YoutubeTrailer } from "@/modules/youtubeTrailers/types/youtubeTrailer.type";
+import { Prize } from "@/modules/prizes/types/prize.type";
 
 interface MovieFormProps {
     onSubmit: SubmitHandler<MovieFormData>;
@@ -22,6 +23,7 @@ interface MovieFormProps {
     youtubeTrailers?: YoutubeTrailer[];
     usedTrailerIds?: string[]; // Ids of trailers already assigned to other movies
     currentTrailerId?: string; // Only for edit, keep current trailer available to select
+    prizes?: Prize[];
     isLoadingRelations?: boolean;
 }
 
@@ -36,6 +38,7 @@ export default function MovieForm({
     youtubeTrailers = [],
     usedTrailerIds = [],
     currentTrailerId,
+    prizes = [],
     isLoadingRelations = false,
 }: MovieFormProps) {
     const {
@@ -249,7 +252,7 @@ export default function MovieForm({
             {/* Actors Multi select (predict al parcial) */}
             <fieldset>
                 <legend className="block text-sm font-medium text-gray-800 mb-2">
-                    Actors (Optional)
+                    Actors
                 </legend>
                 {isLoadingRelations ? (
                     <p className="text-gray-600">Loading actors...</p>
@@ -278,7 +281,7 @@ export default function MovieForm({
             {/* Platforms Multi select */}
             <fieldset>
                 <legend className="block text-sm font-medium text-gray-800 mb-2">
-                    Platforms (Optional)
+                    Platforms
                 </legend>
                 {isLoadingRelations ? (
                     <p className="text-gray-600">Loading platforms...</p>
@@ -297,6 +300,35 @@ export default function MovieForm({
                                 />
                                 <label htmlFor={`platform-${platform.id}`} className="text-sm text-gray-800">
                                     {platform.name}
+                                </label>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </fieldset>
+
+            {/* Prizes Multi-select (Optional) */}
+            <fieldset>
+                <legend className="block text-sm font-medium text-gray-800 mb-2">
+                    Prizes (Optional)
+                </legend>
+                {isLoadingRelations ? (
+                    <p className="text-gray-600">Loading prizes...</p>
+                ) : prizes.length === 0 ? (
+                    <p className="text-gray-600">No prizes available</p>
+                ) : (
+                    <div className="bg-white border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
+                        {prizes.map((prize) => (
+                            <div key={prize.id} className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    id={`prize-${prize.id}`}
+                                    value={prize.id}
+                                    {...register("prizeIds")}
+                                    className="mr-2 h-4 w-4 text-blue-600"
+                                />
+                                <label htmlFor={`prize-${prize.id}`} className="text-sm text-gray-800">
+                                    {prize.name} - {prize.category} ({prize.year})
                                 </label>
                             </div>
                         ))}
