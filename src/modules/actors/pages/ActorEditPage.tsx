@@ -34,7 +34,7 @@ export default function ActorEditPage({ actorId }: ActorEditPageProps) {
                     nationality: actor.nationality,
                     birthDate: actor.birthDate.split("T")[0], // Format date for input
                     biography: actor.biography,
-                    movieIds: actor.movies?.map((m) => m.id) || [],
+                    movieIds: actor.movies?.map((m) => m.id) || [], // Associate movies by their IDs iif they exist
                 });
             } catch (err) {
                 setError(err instanceof Error ? err.message : "Failed to load actor");
@@ -49,7 +49,7 @@ export default function ActorEditPage({ actorId }: ActorEditPageProps) {
         setIsSubmitting(true);
         setError(null);
         try {
-            // Update actor basic info (without movieIds)
+            // Update actor basic info (without movieIds, because it explodes elsewhere)
             const { movieIds, ...actorData } = data;
             await updateActor(actorId, actorData as ActorFormData);
             
@@ -90,7 +90,7 @@ export default function ActorEditPage({ actorId }: ActorEditPageProps) {
         );
     }
 
-    if (error && !defaultValues) {
+    if (error && !defaultValues) { // If an error or no default values (we failed to load the actor)
         return (
             <main className="container mx-auto p-8">
                 <p className="text-red-500">Error: {error}</p>
@@ -100,7 +100,7 @@ export default function ActorEditPage({ actorId }: ActorEditPageProps) {
 
     return (
         <main className="container mx-auto p-8">
-            <h1 className="text-3xl font-bold mb-6">Edit Actor</h1>
+            <h1 className="text-3xl font-bold mb-6 text-red-600">Edit Actor</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             <ActorForm
                 onSubmit={handleUpdateActor}

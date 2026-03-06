@@ -30,91 +30,91 @@ export default function ActorForm({
     });
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div>
-                <label htmlFor="name" className="block font-medium">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-800 mb-1">
                     Actor Name
                 </label>
                 <input
                     id="name"
                     {...register("name")}
-                    className="w-full p-2 border rounded"
+                    className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 {errors.name && (
-                    <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+                    <p className="text-red-600 text-sm mt-1">{errors.name.message}</p>
                 )}
             </div>
 
             <div>
-                <label htmlFor="photo" className="block font-medium">
+                <label htmlFor="photo" className="block text-sm font-medium text-gray-800 mb-1">
                     Photo URL
                 </label>
                 <input
                     id="photo"
                     type="url"
                     {...register("photo")}
-                    className="w-full p-2 border rounded"
+                    className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="https://example.com/photo.jpg"
                 />
                 {errors.photo && (
-                    <p className="text-red-500 text-sm mt-1">{errors.photo.message}</p>
+                    <p className="text-red-600 text-sm mt-1">{errors.photo.message}</p>
                 )}
             </div>
 
             <div>
-                <label htmlFor="nationality" className="block font-medium">
+                <label htmlFor="nationality" className="block text-sm font-medium text-gray-800 mb-1">
                     Nationality
                 </label>
                 <input
                     id="nationality"
                     {...register("nationality")}
-                    className="w-full p-2 border rounded"
+                    className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 {errors.nationality && (
-                    <p className="text-red-500 text-sm mt-1">{errors.nationality.message}</p>
+                    <p className="text-red-600 text-sm mt-1">{errors.nationality.message}</p>
                 )}
             </div>
 
             <div>
-                <label htmlFor="birthDate" className="block font-medium">
+                <label htmlFor="birthDate" className="block text-sm font-medium text-gray-800 mb-1">
                     Birth Date
                 </label>
                 <input
                     id="birthDate"
                     type="date"
                     {...register("birthDate")}
-                    className="w-full p-2 border rounded"
+                    className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 {errors.birthDate && (
-                    <p className="text-red-500 text-sm mt-1">{errors.birthDate.message}</p>
+                    <p className="text-red-600 text-sm mt-1">{errors.birthDate.message}</p>
                 )}
             </div>
 
             <div>
-                <label htmlFor="biography" className="block font-medium">
+                <label htmlFor="biography" className="block text-sm font-medium text-gray-800 mb-1">
                     Biography
                 </label>
                 <textarea
                     id="biography"
                     {...register("biography")}
-                    className="w-full p-2 border rounded"
+                    className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     rows={4}
                 />
                 {errors.biography && (
-                    <p className="text-red-500 text-sm mt-1">{errors.biography.message}</p>
+                    <p className="text-red-600 text-sm mt-1">{errors.biography.message}</p>
                 )}
             </div>
 
             <div>
-                <label className="block font-medium mb-2">
+                <label className="block text-sm font-medium text-gray-800 mb-2">
                     Movies (Optional)
                 </label>
                 {isLoadingMovies ? (
-                    <p className="text-gray-500">Loading movies...</p>
+                    <p className="text-gray-600">Loading movies...</p>
                 ) : movies.length === 0 ? (
-                    <p className="text-gray-500">No movies available</p>
+                    <p className="text-gray-600">No movies available</p>
                 ) : (
-                    <div className="border rounded p-3 max-h-48 overflow-y-auto space-y-2">
+                    <div className="bg-white border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
                         {movies.map((movie) => (
                             <div key={movie.id} className="flex items-center">
                                 <input
@@ -122,9 +122,9 @@ export default function ActorForm({
                                     id={`movie-${movie.id}`}
                                     value={movie.id}
                                     {...register("movieIds")}
-                                    className="mr-2"
+                                    className="mr-2 h-4 w-4 text-blue-600"
                                 />
-                                <label htmlFor={`movie-${movie.id}`} className="text-sm">
+                                <label htmlFor={`movie-${movie.id}`} className="text-sm text-gray-800">
                                     {movie.title}
                                 </label>
                             </div>
@@ -132,7 +132,7 @@ export default function ActorForm({
                     </div>
                 )}
                 {errors.movieIds && (
-                    <p className="text-red-500 text-sm mt-1">{errors.movieIds.message}</p>
+                    <p className="text-red-600 text-sm mt-1">{errors.movieIds.message}</p>
                 )}
             </div>
 

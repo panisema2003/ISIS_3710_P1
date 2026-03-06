@@ -19,12 +19,12 @@ export const createActor = (data: ActorFormData) : Promise<Actor> => {
     });
 }
 
-// Function to fetch a single actor by ID
+// Function to fetch a single actor by Id
 export const fetchActorById = (id: string): Promise<Actor> => {
     return apiFetcher<Actor>(`/actors/${id}`);
 }
 
-// Function to update an existing actor
+// Function to update an existing actor (by Id too)
 export const updateActor = (id: string, data: ActorFormData): Promise<Actor> => {
     return apiFetcher<Actor>(`/actors/${id}`, {
         method: "PUT",
@@ -32,7 +32,7 @@ export const updateActor = (id: string, data: ActorFormData): Promise<Actor> => 
     });
 }
 
-// Function to delete an actor
+// Function to delete an actor (by Id)
 export const deleteActor = (id: string): Promise<void> => {
     return apiFetcher<void>(`/actors/${id}`, {
         method: "DELETE",

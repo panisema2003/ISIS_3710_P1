@@ -1,0 +1,166 @@
+"use client";
+
+import { useState } from "react";
+import { useDirectors } from "@/modules/directors/hooks/useDirectors";
+import { Director } from "@/modules/directors/types/director.type";
+import { deleteDirector } from "@/modules/directors/services/director.service";
+import Modal from "@/shared/ui/Modal";
+import Link from "next/link";
+import { useNotificationStore } from "@/shared/store/useNotificationStore";
+
+export default function DirectorsPage() {
+    const { directors, isLoading, error } = useDirectors();
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedDirector, setSelectedDirector] = useState<Director | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
+    const showNotification = useNotificationStore((state) => state.showNotification);
+
+    const handleDirectorClick = (director: Director) => {
+        setSelectedDirector(director);
+        setIsModalOpen(true);
+    }
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedDirector(null);
+        setDeleteError(null);
+    }
+
+    const handleDelete = async () => {
+        if (!selectedDirector) return;
+        
+        if (!confirm(`Are you sure you want to delete "${selectedDirector.name}"?`)) {
+            return;
+        }
+
+        setIsDeleting(true);
+        setDeleteError(null);
+        try {
+            await deleteDirector(selectedDirector.id);
+            showNotification("Director deleted successfully!", "success");
+            handleCloseModal();
+            window.location.reload();
+        } catch (err) {
+            setDeleteError(err instanceof Error ? err.message : "Failed to delete director");
+            showNotification("Failed to delete director.", "error");
+        } finally {
+            setIsDeleting(false);
+        }
+    }
+
+    if (isLoading) {
+        return <div className="text-center p-8">Loading...</div>;
+    }
+
+    if (error) {
+        return <div className="text-center p-8 text-red-500">Error: {error}</div>;
+    }
+
+    return (
+        <div className="container mx-auto p-8">
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-bold">List of Directors</h1>
+                <Link
+                    href="/directors/new"
+                    className="bg-yellow-400 text-black font-bold py-2 px-4 rounded hover:bg-yellow-500"
+                >
+                    + New Director
+                </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {directors.map((director) => (
+                    <div
+                        key={director.id}
+                        className="border rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
+                        onClick={() => handleDirectorClick(director)}
+                    >
+                        <div className="h-48 overflow-hidden bg-gray-100">
+                            <img
+                                src={director.photo}
+                                alt={director.name}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                        <div className="p-4">
+                            <h2 className="text-xl font-semibold">{director.name}</h2>
+                            <p className="text-gray-500 text-sm mt-1">{director.nationality}</p>
+                            <p className="text-gray-600 mt-2 line-clamp-2">{director.biography}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <Modal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                title={selectedDirector ? selectedDirector.name : "Director Details"}
+            >
+                {selectedDirector && (
+                    <div className="space-y-4">
+                        <div className="w-full h-56 rounded-lg overflow-hidden bg-gray-100">
+                            <img
+                                src={selectedDirector.photo}
+                                alt={selectedDirector.name}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                                <span className="font-medium text-gray-700">Nationality:</span>
+                                <span>{selectedDirector.nationality}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="font-medium text-gray-700">Birth Date:</span>
+                                <span>{new Date(selectedDirector.birthDate).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 className="font-medium text-gray-700 mb-1">Biography</h3>
+                            <p className="text-gray-600 text-sm">{selectedDirector.biography}</p>
+                        </div>
+
+                        {selectedDirector.movies && selectedDirector.movies.length > 0 && (
+                            <div>
+                                <h3 className="font-medium text-gray-700 mb-1">Movies Directed</h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {selectedDirector.movies.map((movie) => (
+                                        <span
+                                            key={movie.id}
+                                            className="bg-gray-100 text-gray-700 text-sm px-2 py-1 rounded"
+                                        >
+                                            {movie.title}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        
+                        {deleteError && (
+                            <p className="text-red-500 text-sm">{deleteError}</p>
+                        )}
+
+                        <div className="flex gap-3 pt-2">
+                            <Link
+                                href={`/directors/${selectedDirector.id}/edit`}
+                                className="bg-yellow-400 text-black font-bold py-2 px-4 rounded hover:bg-yellow-500"
+                            >
+                                Edit
+                            </Link>
+                            <button
+                                onClick={handleDelete}
+                                disabled={isDeleting}
+                                className="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 disabled:bg-gray-300"
+                            >
+                                {isDeleting ? "Deleting..." : "Delete"}
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </Modal>
+        </div>
+    );
+}

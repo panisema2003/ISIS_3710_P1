@@ -43,7 +43,7 @@ export default function ActorCreatePage() {
 
     return (
         <main className="container mx-auto p-8">
-            <h1 className="text-3xl font-bold mb-6">Create New Actor</h1>
+            <h1 className="text-3xl font-bold mb-6 text-red-600">Create New Actor</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             <ActorForm 
                 onSubmit={handleCreateActor} 

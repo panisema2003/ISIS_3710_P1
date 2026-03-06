@@ -1,9 +1,9 @@
 import { Actor } from "@/modules/actors/types/actor.type";
 import { Director } from "@/modules/directors/types/director.type";
-import { Genre } from "@/modules/genres/types/genre";
+import { Genre } from "@/modules/genres/types/genre.type";
 import { Platform } from "@/modules/platforms/types/platform.type";
-import { Review } from "@/modules/reviews/types/revie.type";
-import { YoutubeTrailer } from "@/modules/youtubeTrailers/types/youtubeTraile.type";
+import { Review } from "@/modules/reviews/types/review.type";
+import { YoutubeTrailer } from "@/modules/youtubeTrailers/types/youtubeTrailer.type";
 export interface Movie {
   id: string;
   title: string;

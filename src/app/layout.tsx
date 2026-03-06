@@ -1,8 +1,9 @@
-// Use Provider so that actors list is not deleted when sent to crear
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Notification from "@/shared/ui/Notification";
+import Header from "@/shared/ui/Header";
+import Footer from "@/shared/ui/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,12 +27,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <Header />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Notification />
         {children}
       </body>
+      <Footer />
     </html>
   );
 }
