@@ -4,6 +4,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 First, run the development server:
 
+On package.json in npm I can add the port -p 3001, so it doesn't conflict with the Backend
+
 ```bash
 npm run dev
 # or
