@@ -43,6 +43,7 @@ export default function MovieCreatePage() {
             director: { id: directorId },
             youtubeTrailer: { id: youtubeTrailerId },
         };
+        // TODO: try - catch (only if movies is in midterm do it ...)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any (so it doesnt complain)
         const createdMovie = await createMovie(moviePayload as any);
         

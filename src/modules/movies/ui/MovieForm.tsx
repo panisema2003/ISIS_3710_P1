@@ -247,10 +247,10 @@ export default function MovieForm({
             </div>
 
             {/* Actors Multi select (predict al parcial) */}
-            <div>
-                <label className="block text-sm font-medium text-gray-800 mb-2">
+            <fieldset>
+                <legend className="block text-sm font-medium text-gray-800 mb-2">
                     Actors (Optional)
-                </label>
+                </legend>
                 {isLoadingRelations ? (
                     <p className="text-gray-600">Loading actors...</p>
                 ) : actors.length === 0 ? (
@@ -273,13 +273,13 @@ export default function MovieForm({
                         ))}
                     </div>
                 )}
-            </div>
+            </fieldset>
 
             {/* Platforms Multi select */}
-            <div>
-                <label className="block text-sm font-medium text-gray-800 mb-2">
+            <fieldset>
+                <legend className="block text-sm font-medium text-gray-800 mb-2">
                     Platforms (Optional)
-                </label>
+                </legend>
                 {isLoadingRelations ? (
                     <p className="text-gray-600">Loading platforms...</p>
                 ) : platforms.length === 0 ? (
@@ -302,7 +302,7 @@ export default function MovieForm({
                         ))}
                     </div>
                 )}
-            </div>
+            </fieldset>
 
             <button
                 type="submit"

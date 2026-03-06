@@ -105,10 +105,10 @@ export default function ActorForm({
                 )}
             </div>
 
-            <div>
-                <label className="block text-sm font-medium text-gray-800 mb-2">
+            <fieldset>
+                <legend className="block text-sm font-medium text-gray-800 mb-2">
                     Movies (Optional)
-                </label>
+                </legend>
                 {isLoadingMovies ? (
                     <p className="text-gray-600">Loading movies...</p>
                 ) : movies.length === 0 ? (
@@ -134,7 +134,7 @@ export default function ActorForm({
                 {errors.movieIds && (
                     <p className="text-red-600 text-sm mt-1">{errors.movieIds.message}</p>
                 )}
-            </div>
+            </fieldset>
 
             <button
                 type="submit"
