@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Movie } from "@/modules/movies/types/movie.type";
+import { Prize } from "@/modules/prizes/types/prize.type";
 import { fetchMovieById, deleteMovie } from "@/modules/movies/services/movie.service";
+import { fetchPrizes } from "@/modules/prizes/services/prize.service";
 import { useNotificationStore } from "@/shared/store/useNotificationStore";
 
 interface MovieDetailPageProps {
@@ -16,6 +18,7 @@ export default function MovieDetailPage({ movieId }: MovieDetailPageProps) {
     const { showNotification } = useNotificationStore();
 
     const [movie, setMovie] = useState<Movie | null>(null);
+    const [moviePrizes, setMoviePrizes] = useState<Prize[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -26,6 +29,14 @@ export default function MovieDetailPage({ movieId }: MovieDetailPageProps) {
                 setIsLoading(true);
                 const data = await fetchMovieById(movieId);
                 setMovie(data);
+                
+                // Workaround: Backend doesn't include prizes in movie response
+                // Fetch all prizes and filter those that contain this movie
+                const allPrizes = await fetchPrizes();
+                const prizesForMovie = allPrizes.filter(
+                    (prize) => prize.movies?.some((m) => m.id === movieId)
+                );
+                setMoviePrizes(prizesForMovie);
             } catch (err) {
                 setError(err instanceof Error ? err.message : "Failed to load movie");
             } finally {
@@ -201,9 +212,9 @@ export default function MovieDetailPage({ movieId }: MovieDetailPageProps) {
                 {/* Prizes */}
                 <div className="border-t p-6">
                     <h2 className="text-xl font-bold mb-4">🏆 Prizes</h2>
-                    {movie.prizes && movie.prizes.length > 0 ? (
+                    {moviePrizes.length > 0 ? (
                         <div className="flex flex-wrap gap-3">
-                            {movie.prizes.map((prize) => (
+                            {moviePrizes.map((prize) => (
                                 <div
                                     key={prize.id}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium ${

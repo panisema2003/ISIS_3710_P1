@@ -2,8 +2,7 @@
 
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { createMovie, addActorToMovie, addPlatformToMovie } from "@/modules/movies/services/movie.service";
-import { addMovieToPrize } from "@/modules/prizes/services/prize.service";
+import { createMovie, addActorToMovie, addPlatformToMovie, addPrizeToMovie } from "@/modules/movies/services/movie.service";
 import { useNotificationStore } from "@/shared/store/useNotificationStore";
 import MovieForm from "@/modules/movies/ui/MovieForm";
 import { MovieFormData } from "@/modules/movies/validation/movie.schema";
@@ -65,12 +64,17 @@ export default function MovieCreatePage() {
                 }
             }
 
-            // Add prizes (m2m) - from prize side
+            // Add prizes (m2m) - same pattern as actors
             if (prizeIds && prizeIds.length > 0) {
                 console.log("Assigning prizes:", prizeIds);
                 for (const prizeId of prizeIds) {
-                    console.log(`Adding movie ${createdMovie.id} to prize ${prizeId}`);
-                    await addMovieToPrize(prizeId, createdMovie.id);
+                    console.log(`Adding prize ${prizeId} to movie ${createdMovie.id}`);
+                    try {
+                        await addPrizeToMovie(createdMovie.id, prizeId);
+                        console.log(`Successfully added prize ${prizeId}`);
+                    } catch (prizeError) {
+                        console.error(`Failed to add prize ${prizeId}:`, prizeError);
+                    }
                 }
             }
             
