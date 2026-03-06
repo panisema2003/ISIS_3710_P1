@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const MovieSchema = z.object({
     title: z.string().min(1, "Title is required"),
-    poster: z.string().url("Valid poster URL is required"),
+    poster: z.url("Valid poster URL is required"),
     duration: z.number().positive("Duration must be a positive number").min(1, "Duration must be at least 1 minute"),
     country: z.string().min(1, "Country is required"),
     releaseDate: z.string().min(1, "Release date is required"),
