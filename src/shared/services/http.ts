@@ -35,6 +35,10 @@ export async function apiFetcher<T>(
                 `Request error: ${response.status} ${response.statusText}`
         );
     }
+    // TO DELETE: ELSE IT SENDS AN ERROR EVEN WHEN DELETING
+    if (response.status === 204 || response.headers.get("content-length") === "0") {
+        return undefined as T;
+    }
     // If the response is successful, we parse it as JSON.
     return response.json() as Promise<T>;
 }

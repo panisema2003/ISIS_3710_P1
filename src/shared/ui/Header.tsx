@@ -9,23 +9,27 @@ interface Route {
 
 const Header = ({ routes }: { routes: Route[] }) => {
     return (
-        <header className="bg-gray-800 text-white p-4 flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-                <Link href="/" className="text-2xl font-bold">
+        <header className="bg-gray-800 text-white shadow-lg">
+            <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+                {/* Logo and brand */}
+                <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
                     <Image
                         src="/logo_pexels.jpg"
                         alt="Logo de Cinema"
-                        width={40}
-                        height={40}
+                        width={44}
+                        height={44}
+                        className="rounded-lg"
                     />
-                    <span className="text-2xl font-semibold">Movies & Movies</span>
-                </Link>    
-                <nav>
+                    <span className="text-xl font-bold tracking-wide">Movies & Movies</span>
+                </Link>
+                
+                {/* Navigation */}
+                <nav className="flex items-center gap-1">
                     {routes.map((route) => (
                         <Link
                             key={route.path}
                             href={route.path}
-                            className="px-4 hover:text-gray-300"
+                            className="px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors font-medium"
                         >
                             {route.name}
                         </Link>

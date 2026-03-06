@@ -4,7 +4,7 @@ import { useState } from "react";
 import ActorForm from "../ui/ActorsForm";
 import { ActorFormData } from "../validation/actor.schema";
 import { useRouter } from "next/navigation"; 
-import { createActor } from "../services/actor.service";
+import { createActor, addMovieToActor } from "../services/actor.service";
 import { useMovies } from "@/modules/movies/hooks/useMovies";
 import { useNotificationStore } from "@/shared/store/useNotificationStore";
 
@@ -19,7 +19,17 @@ export default function ActorCreatePage() {
     const handleCreateActor = async (data: ActorFormData) => {
         setIsSubmitting(true);
         try {
-            await createActor(data);
+            // First create the actor without movies
+            const { movieIds, ...actorData } = data;
+            const createdActor = await createActor(actorData as ActorFormData);
+            
+            // Then associate each movie with the actor
+            if (movieIds && movieIds.length > 0) {
+                for (const movieId of movieIds) {
+                    await addMovieToActor(createdActor.id, movieId);
+                }
+            }
+            
             showNotification("Actor created successfully!", "success");
             router.push("/actors"); // Redirect to actors list after successful creation
         } catch (err) {
