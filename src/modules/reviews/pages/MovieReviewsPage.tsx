@@ -7,6 +7,7 @@ import { Review } from "@/modules/reviews/types/review.type";
 import { deleteReview } from "@/modules/reviews/services/review.service";
 import { useNotificationStore } from "@/shared/store/useNotificationStore";
 import Modal from "@/shared/ui/Modal";
+import { useI18n } from "@/shared/i18n/I18nContext";
 
 interface MovieReviewsPageProps {
     movieId: string;
@@ -17,6 +18,7 @@ export default function MovieReviewsPage({ movieId, movieTitle }: MovieReviewsPa
     const { reviews, isLoading, error } = useReviews(movieId);
     const router = useRouter();
     const { showNotification } = useNotificationStore();
+    const { t } = useI18n();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedReview, setSelectedReview] = useState<Review | null>(null);
@@ -41,19 +43,19 @@ export default function MovieReviewsPage({ movieId, movieTitle }: MovieReviewsPa
     const handleDelete = async () => {
         if (!selectedReview) return;
         
-        if (!confirm(`Are you sure you want to delete this review?`)) {
+        if (!confirm(t.confirmDelete.replace("{name}", selectedReview.creator))) {
             return;
         }
 
         setIsDeleting(true);
         try {
             await deleteReview(movieId, selectedReview.id);
-            showNotification("Review deleted successfully", "success");
+            showNotification(t.reviews.deletedSuccess, "success");
             handleCloseModal();
             router.refresh();
             window.location.reload();
         } catch (err) {
-            showNotification(err instanceof Error ? err.message : "Failed to delete review", "error");
+            showNotification(err instanceof Error ? err.message : t.reviews.deleteError, "error");
         } finally {
             setIsDeleting(false);
         }
@@ -74,37 +76,42 @@ export default function MovieReviewsPage({ movieId, movieTitle }: MovieReviewsPa
     };
 
     if (isLoading) {
-        return <div className="text-center p-8">Loading...</div>;
+        return <div className="text-center p-8" role="status" aria-live="polite">{t.loading}</div>;
     }
 
     if (error) {
-        return <div className="text-center p-8 text-red-500">Error: {error}</div>;
+        return <div className="text-center p-8 text-red-500" role="alert">{t.error}: {error}</div>;
     }
 
     return (
         <div className="container mx-auto p-8">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h1 className="text-3xl font-bold">Reviews</h1>
-                    {movieTitle && <p className="text-gray-500">for {movieTitle}</p>}
+                    <h1 className="text-3xl font-bold">{t.reviews.title}</h1>
+                    {movieTitle && <p className="text-gray-500">{t.reviews.forMovie} {movieTitle}</p>}
                 </div>
                 <button
                     onClick={() => router.push(`/movies/${movieId}/reviews/new`)}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    aria-label={t.reviews.addReview}
                 >
-                    Add Review
+                    {t.reviews.addReview}
                 </button>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-4" role="list" aria-label={t.reviews.title}>
                 {reviews.length === 0 ? (
-                    <p className="text-gray-500 text-center py-8">No reviews yet. Be the first to review!</p>
+                    <p className="text-gray-500 text-center py-8">{t.reviews.noReviewsYet}</p>
                 ) : (
                     reviews.map((review) => (
                         <div
                             key={review.id}
                             className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow cursor-pointer"
                             onClick={() => handleReviewClick(review)}
+                            role="listitem"
+                            tabIndex={0}
+                            onKeyDown={(e) => e.key === "Enter" && handleReviewClick(review)}
+                            aria-label={`${t.reviews.title} - ${review.creator}`}
                         >
                             <div className="flex justify-between items-start">
                                 <div>
@@ -121,7 +128,7 @@ export default function MovieReviewsPage({ movieId, movieTitle }: MovieReviewsPa
             <Modal 
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
-                title="Review Details"
+                title={t.reviews.reviewDetails}
             >
                 {selectedReview && (
                     <div className="space-y-4">
@@ -136,15 +143,17 @@ export default function MovieReviewsPage({ movieId, movieTitle }: MovieReviewsPa
                             <button
                                 onClick={handleEdit}
                                 className="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition-colors"
+                                aria-label={`${t.edit} ${selectedReview.creator}`}
                             >
-                                Edit
+                                {t.edit}
                             </button>
                             <button
                                 onClick={handleDelete}
                                 disabled={isDeleting}
                                 className="flex-1 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
+                                aria-label={`${t.delete} ${selectedReview.creator}`}
                             >
-                                {isDeleting ? "Deleting..." : "Delete"}
+                                {isDeleting ? t.deleting : t.delete}
                             </button>
                         </div>
                     </div>

@@ -6,10 +6,12 @@ import { useNotificationStore } from "@/shared/store/useNotificationStore";
 import YoutubeTrailerForm from "@/modules/youtubeTrailers/ui/YoutubeTrailerForm";
 import { YoutubeTrailerFormData } from "@/modules/youtubeTrailers/validation/youtubeTrailer.schema";
 import { useMovies } from "@/modules/movies/hooks/useMovies";
+import { useI18n } from "@/shared/i18n/I18nContext";
 
 export default function YoutubeTrailerCreatePage() {
     const router = useRouter();
     const { showNotification } = useNotificationStore();
+    const { t } = useI18n();
     
     const { movies, isLoading: loadingMovies } = useMovies();
 
@@ -25,12 +27,12 @@ export default function YoutubeTrailerCreatePage() {
                 await setTrailerMovie(createdTrailer.id, movieId);
             }
             
-            showNotification("Trailer created successfully!", "success");
+            showNotification(t.trailers.createdSuccess, "success");
             router.push("/youtube-trailers");
         } catch (error) {
-            const message = error instanceof Error ? error.message : "Failed to create trailer";
+            const message = error instanceof Error ? error.message : t.trailers.createError;
             if (message.includes("400")) {
-                showNotification("Invalid YouTube URL format. Please provide a valid YouTube video URL.", "error");
+                showNotification(t.trailers.invalidUrl, "error");
             } else {
                 showNotification(message, "error");
             }
@@ -38,14 +40,14 @@ export default function YoutubeTrailerCreatePage() {
     };
 
     return (
-        <div className="container mx-auto p-8">
-            <h1 className="text-3xl font-bold mb-6">Create New Trailer</h1>
+        <section className="container mx-auto p-8" aria-labelledby="create-trailer-title">
+            <h1 id="create-trailer-title" className="text-3xl font-bold mb-6">{t.trailers.createTitle}</h1>
             <YoutubeTrailerForm
                 onSubmit={handleSubmit}
-                submitLabel="Create Trailer"
+                submitLabel={t.trailers.createTrailer}
                 movies={movies}
                 isLoadingMovies={loadingMovies}
             />
-        </div>
+        </section>
     );
 }

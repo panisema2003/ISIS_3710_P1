@@ -3,6 +3,7 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlatformFormData, PlatformSchema } from "@/modules/platforms/validation/platform.schema";
+import { useI18n } from "@/shared/i18n/I18nContext";
 
 interface PlatformFormProps {
     onSubmit: SubmitHandler<PlatformFormData>;
@@ -23,37 +24,44 @@ export default function PlatformForm({
         resolver: zodResolver(PlatformSchema),
         defaultValues,
     });
+    const { t } = useI18n();
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" aria-label={t.platforms.savePlatform}>
             <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-800 mb-1">
-                    Platform Name
+                    {t.platforms.platformName}
                 </label>
                 <input
                     id="name"
                     {...register("name")}
                     className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="e.g. Netflix, Amazon Prime"
+                    placeholder={t.platforms.namePlaceholder}
+                    aria-required="true"
+                    aria-invalid={!!errors.name}
+                    aria-describedby={errors.name ? "name-error" : undefined}
                 />
                 {errors.name && (
-                    <p className="text-red-600 text-sm mt-1">{errors.name.message}</p>
+                    <p id="name-error" className="text-red-600 text-sm mt-1" role="alert">{errors.name.message}</p>
                 )}
             </div>
 
             <div>
                 <label htmlFor="url" className="block text-sm font-medium text-gray-800 mb-1">
-                    Platform URL
+                    {t.platforms.platformUrl}
                 </label>
                 <input
                     id="url"
                     type="url"
                     {...register("url")}
                     className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="https://www.netflix.com"
+                    placeholder={t.platforms.urlPlaceholder}
+                    aria-required="true"
+                    aria-invalid={!!errors.url}
+                    aria-describedby={errors.url ? "url-error" : undefined}
                 />
                 {errors.url && (
-                    <p className="text-red-600 text-sm mt-1">{errors.url.message}</p>
+                    <p id="url-error" className="text-red-600 text-sm mt-1" role="alert">{errors.url.message}</p>
                 )}
             </div>
 
@@ -61,8 +69,9 @@ export default function PlatformForm({
                 type="submit"
                 disabled={isSubmitting}
                 className="bg-yellow-400 text-black font-bold py-2 px-6 rounded hover:bg-yellow-500 disabled:bg-gray-300"
+                aria-busy={isSubmitting}
             >
-                {isSubmitting ? "Saving..." : "Save Platform"}
+                {isSubmitting ? t.saving : t.platforms.savePlatform}
             </button>
         </form>
     );

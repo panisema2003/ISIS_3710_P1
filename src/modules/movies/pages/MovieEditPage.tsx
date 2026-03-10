@@ -14,6 +14,7 @@ import { useNotificationStore } from "@/shared/store/useNotificationStore";
 import MovieForm from "@/modules/movies/ui/MovieForm";
 import { MovieFormData } from "@/modules/movies/validation/movie.schema";
 import { Movie } from "@/modules/movies/types/movie.type";
+import { useI18n } from "@/shared/i18n/I18nContext";
 import { useActors } from "@/modules/actors/hooks/useActors";
 import { useDirectors } from "@/modules/directors/hooks/useDirectors";
 import { useGenres } from "@/modules/genres/hooks/useGenres";
@@ -28,6 +29,7 @@ interface MovieEditPageProps {
 export default function MovieEditPage({ movieId }: MovieEditPageProps) {
     const router = useRouter();
     const { showNotification } = useNotificationStore();
+    const { t } = useI18n();
     
     const [movie, setMovie] = useState<Movie | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -56,7 +58,7 @@ export default function MovieEditPage({ movieId }: MovieEditPageProps) {
                 const data = await fetchMovieById(movieId);
                 setMovie(data);
             } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to load movie");
+                setError(err instanceof Error ? err.message : t.movies.loadError);
             } finally {
                 setIsLoading(false);
             }
@@ -114,16 +116,16 @@ export default function MovieEditPage({ movieId }: MovieEditPageProps) {
             }
         }
 
-        showNotification("Movie updated successfully!", "success");
+        showNotification(t.movies.updatedSuccess, "success");
         router.push("/movies");
     };
 
     if (isLoading) {
-        return <div className="text-center p-8">Loading...</div>;
+        return <div className="text-center p-8" role="status" aria-live="polite">{t.loading}</div>;
     }
 
     if (error || !movie) {
-        return <div className="text-center p-8 text-red-500">Error: {error || "Movie not found"}</div>;
+        return <div className="text-center p-8 text-red-500" role="alert">{t.error}: {error || t.movies.movieNotFound}</div>;
     }
 
     const defaultValues: Partial<MovieFormData> = {
@@ -141,11 +143,11 @@ export default function MovieEditPage({ movieId }: MovieEditPageProps) {
     };
 
     return (
-        <div className="container mx-auto p-8">
-            <h1 className="text-3xl font-bold mb-6 text-blue-600">Edit Movie</h1>
+        <section className="container mx-auto p-8" aria-labelledby="edit-movie-title">
+            <h1 id="edit-movie-title" className="text-3xl font-bold mb-6 text-blue-600">{t.movies.editTitle}</h1>
             <MovieForm
                 onSubmit={handleSubmit}
-                submitLabel="Update Movie"
+                submitLabel={t.movies.updateMovie}
                 defaultValues={defaultValues}
                 actors={actors}
                 directors={directors}
@@ -156,6 +158,6 @@ export default function MovieEditPage({ movieId }: MovieEditPageProps) {
                 currentTrailerId={movie.youtubeTrailer?.id}
                 isLoadingRelations={isLoadingRelations}
             />
-        </div>
+        </section>
     );
 }

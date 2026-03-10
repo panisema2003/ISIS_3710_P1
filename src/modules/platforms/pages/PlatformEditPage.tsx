@@ -6,6 +6,7 @@ import { PlatformFormData } from "../validation/platform.schema";
 import { useRouter } from "next/navigation";
 import { fetchPlatformById, updatePlatform } from "../services/platform.service";
 import { useNotificationStore } from "@/shared/store/useNotificationStore";
+import { useI18n } from "@/shared/i18n/I18nContext";
 
 interface PlatformEditPageProps {
     platformId: string;
@@ -18,6 +19,7 @@ export default function PlatformEditPage({ platformId }: PlatformEditPageProps) 
     const [defaultValues, setDefaultValues] = useState<PlatformFormData | undefined>(undefined);
     const router = useRouter();
     const showNotification = useNotificationStore((state) => state.showNotification);
+    const { t } = useI18n();
 
     useEffect(() => {
         const loadPlatform = async () => {
@@ -29,7 +31,7 @@ export default function PlatformEditPage({ platformId }: PlatformEditPageProps) 
                     url: platform.url,
                 });
             } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to load platform");
+                setError(err instanceof Error ? err.message : t.platforms.loadError);
             } finally {
                 setIsLoading(false);
             }
@@ -42,11 +44,11 @@ export default function PlatformEditPage({ platformId }: PlatformEditPageProps) 
         setError(null);
         try {
             await updatePlatform(platformId, data);
-            showNotification("Platform updated successfully!", "success");
+            showNotification(t.platforms.updatedSuccess, "success");
             router.push("/platforms");
         } catch (err) {
-            setError(err instanceof Error ? err.message : "An unknown error occurred while updating the platform.");
-            showNotification("Failed to update platform.", "error");
+            setError(err instanceof Error ? err.message : t.platforms.updateError);
+            showNotification(t.platforms.updateError, "error");
         } finally {
             setIsSubmitting(false);
         }
@@ -54,29 +56,29 @@ export default function PlatformEditPage({ platformId }: PlatformEditPageProps) 
 
     if (isLoading) {
         return (
-            <main className="container mx-auto p-8">
-                <p>Loading platform...</p>
-            </main>
+            <section className="container mx-auto p-8">
+                <p role="status" aria-live="polite">{t.platforms.loadingPlatform}</p>
+            </section>
         );
     }
 
     if (error && !defaultValues) {
         return (
-            <main className="container mx-auto p-8">
-                <p className="text-red-500">Error: {error}</p>
-            </main>
+            <section className="container mx-auto p-8">
+                <p className="text-red-500" role="alert">{t.error}: {error}</p>
+            </section>
         );
     }
 
     return (
-        <main className="container mx-auto p-8">
-            <h1 className="text-3xl font-bold mb-6">Edit Platform</h1>
-            {error && <p className="text-red-500 mb-4">{error}</p>}
+        <section className="container mx-auto p-8" aria-labelledby="edit-platform-title">
+            <h1 id="edit-platform-title" className="text-3xl font-bold mb-6">{t.platforms.editTitle}</h1>
+            {error && <p className="text-red-500 mb-4" role="alert">{error}</p>}
             <PlatformForm
                 onSubmit={handleUpdatePlatform}
                 defaultValues={defaultValues}
                 isSubmitting={isSubmitting}
             />
-        </main>
+        </section>
     );
 }

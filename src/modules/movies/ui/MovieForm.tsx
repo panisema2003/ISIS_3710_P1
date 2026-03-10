@@ -11,6 +11,7 @@ import { Actor } from "@/modules/actors/types/actor.type";
 import { Platform } from "@/modules/platforms/types/platform.type";
 import { YoutubeTrailer } from "@/modules/youtubeTrailers/types/youtubeTrailer.type";
 import { Prize } from "@/modules/prizes/types/prize.type";
+import { useI18n } from "@/shared/i18n/I18nContext";
 
 interface MovieFormProps {
     onSubmit: SubmitHandler<MovieFormData>;
@@ -49,6 +50,7 @@ export default function MovieForm({
         resolver: zodResolver(MovieSchema),
         defaultValues,
     });
+    const { t } = useI18n();
 
     // Filter out trailers that are already used by other movies
     // Keep the current trailer available in edit mode
@@ -59,25 +61,28 @@ export default function MovieForm({
     }, [youtubeTrailers, usedTrailerIds, currentTrailerId]);
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" aria-label={t.movies.saveMovie}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label htmlFor="title" className="block text-sm font-medium text-gray-800 mb-1">
-                        Title
+                        {t.movies.movieTitle}
                     </label>
                     <input
                         id="title"
                         {...register("title")}
                         className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        aria-required="true"
+                        aria-invalid={!!errors.title}
+                        aria-describedby={errors.title ? "title-error" : undefined}
                     />
                     {errors.title && (
-                        <p className="text-red-600 text-sm mt-1">{errors.title.message}</p>
+                        <p id="title-error" className="text-red-600 text-sm mt-1" role="alert">{errors.title.message}</p>
                     )}
                 </div>
 
                 <div>
                     <label htmlFor="poster" className="block text-sm font-medium text-gray-800 mb-1">
-                        Poster URL
+                        {t.movies.posterUrl}
                     </label>
                     <input
                         id="poster"
@@ -85,59 +90,70 @@ export default function MovieForm({
                         {...register("poster")}
                         className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="https://example.com/poster.jpg"
+                        aria-invalid={!!errors.poster}
+                        aria-describedby={errors.poster ? "poster-error" : undefined}
                     />
                     {errors.poster && (
-                        <p className="text-red-600 text-sm mt-1">{errors.poster.message}</p>
+                        <p id="poster-error" className="text-red-600 text-sm mt-1" role="alert">{errors.poster.message}</p>
                     )}
                 </div>
 
                 <div>
                     <label htmlFor="duration" className="block text-sm font-medium text-gray-800 mb-1">
-                        Duration (minutes)
+                        {t.movies.duration}
                     </label>
                     <input
                         id="duration"
                         type="number"
                         {...register("duration", { valueAsNumber: true })}
                         className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        aria-required="true"
+                        aria-invalid={!!errors.duration}
+                        aria-describedby={errors.duration ? "duration-error" : undefined}
                     />
                     {errors.duration && (
-                        <p className="text-red-600 text-sm mt-1">{errors.duration.message}</p>
+                        <p id="duration-error" className="text-red-600 text-sm mt-1" role="alert">{errors.duration.message}</p>
                     )}
                 </div>
 
                 <div>
                     <label htmlFor="country" className="block text-sm font-medium text-gray-800 mb-1">
-                        Country
+                        {t.movies.country}
                     </label>
                     <input
                         id="country"
                         {...register("country")}
                         className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        aria-required="true"
+                        aria-invalid={!!errors.country}
+                        aria-describedby={errors.country ? "country-error" : undefined}
                     />
                     {errors.country && (
-                        <p className="text-red-600 text-sm mt-1">{errors.country.message}</p>
+                        <p id="country-error" className="text-red-600 text-sm mt-1" role="alert">{errors.country.message}</p>
                     )}
                 </div>
 
                 <div>
                     <label htmlFor="releaseDate" className="block text-sm font-medium text-gray-800 mb-1">
-                        Release Date
+                        {t.movies.releaseDate}
                     </label>
                     <input
                         id="releaseDate"
                         type="date"
                         {...register("releaseDate")}
                         className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        aria-required="true"
+                        aria-invalid={!!errors.releaseDate}
+                        aria-describedby={errors.releaseDate ? "releaseDate-error" : undefined}
                     />
                     {errors.releaseDate && (
-                        <p className="text-red-600 text-sm mt-1">{errors.releaseDate.message}</p>
+                        <p id="releaseDate-error" className="text-red-600 text-sm mt-1" role="alert">{errors.releaseDate.message}</p>
                     )}
                 </div>
 
                 <div>
                     <label htmlFor="popularity" className="block text-sm font-medium text-gray-800 mb-1">
-                        Popularity (0-5)
+                        {t.movies.popularityRange}
                     </label>
                     <input
                         id="popularity"
@@ -147,9 +163,12 @@ export default function MovieForm({
                         max="5"
                         {...register("popularity", { valueAsNumber: true })}
                         className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        aria-required="true"
+                        aria-invalid={!!errors.popularity}
+                        aria-describedby={errors.popularity ? "popularity-error" : undefined}
                     />
                     {errors.popularity && (
-                        <p className="text-red-600 text-sm mt-1">{errors.popularity.message}</p>
+                        <p id="popularity-error" className="text-red-600 text-sm mt-1" role="alert">{errors.popularity.message}</p>
                     )}
                 </div>
             </div>
@@ -157,17 +176,18 @@ export default function MovieForm({
             {/* Director Select */}
             <div>
                 <label htmlFor="directorId" className="block text-sm font-medium text-gray-800 mb-1">
-                    Director
+                    {t.movies.director}
                 </label>
                 {isLoadingRelations ? (
-                    <p className="text-gray-600">Loading directors...</p>
+                    <p className="text-gray-600" role="status">{t.movies.loadingDirectors}</p>
                 ) : (
                     <select
                         id="directorId"
                         {...register("directorId")}
                         className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        aria-required="true"
                     >
-                        <option value="">Select a director</option>
+                        <option value="">{t.movies.selectDirector}</option>
                         {directors.map((director) => (
                             <option key={director.id} value={director.id}>
                                 {director.name}
@@ -180,17 +200,18 @@ export default function MovieForm({
             {/* Genre Select */}
             <div>
                 <label htmlFor="genreId" className="block text-sm font-medium text-gray-800 mb-1">
-                    Genre
+                    {t.movies.genre}
                 </label>
                 {isLoadingRelations ? (
-                    <p className="text-gray-600">Loading genres...</p>
+                    <p className="text-gray-600" role="status">{t.movies.loadingGenres}</p>
                 ) : (
                     <select
                         id="genreId"
                         {...register("genreId")}
                         className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        aria-required="true"
                     >
-                        <option value="">Select a genre</option>
+                        <option value="">{t.movies.selectGenre}</option>
                         {genres.map((genre) => (
                             <option key={genre.id} value={genre.id}>
                                 {genre.type}
@@ -199,7 +220,7 @@ export default function MovieForm({
                     </select>
                 )}
                 {errors.genreId && (
-                    <p className="text-red-600 text-sm mt-1">{errors.genreId.message}</p>
+                    <p className="text-red-600 text-sm mt-1" role="alert">{errors.genreId.message}</p>
                 )}
             </div>
 
@@ -207,27 +228,27 @@ export default function MovieForm({
             <div>
                 <div className="flex items-center justify-between mb-1">
                     <label htmlFor="youtubeTrailerId" className="block text-sm font-medium text-gray-800">
-                        YouTube Trailer
+                        {t.movies.youtubeTrailer}
                     </label>
                     <Link
                         href="/youtube-trailers/new"
                         className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
                     >
-                        + Create New Trailer
+                        {t.movies.createNewTrailer}
                     </Link>
                 </div>
                 {isLoadingRelations ? (
-                    <p className="text-gray-600">Loading trailers...</p>
+                    <p className="text-gray-600" role="status">{t.movies.loadingTrailers}</p>
                 ) : availableTrailers.length === 0 ? (
                     <div className="p-3 bg-yellow-100 border border-yellow-300 rounded-lg">
                         <p className="text-yellow-800 text-sm">
-                            No available trailers. All existing trailers are already assigned to movies.
+                            {t.movies.noTrailersAvailable}
                         </p>
                         <Link
                             href="/youtube-trailers/new"
                             className="text-sm text-blue-600 hover:text-blue-800 hover:underline mt-1 inline-block"
                         >
-                            Create a new YouTube trailer
+                            {t.movies.createTrailerLink}
                         </Link>
                     </div>
                 ) : (
@@ -235,8 +256,9 @@ export default function MovieForm({
                         id="youtubeTrailerId"
                         {...register("youtubeTrailerId")}
                         className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        aria-required="true"
                     >
-                        <option value="">Select a trailer</option>
+                        <option value="">{t.movies.selectTrailer}</option>
                         {availableTrailers.map((trailer) => (
                             <option key={trailer.id} value={trailer.id}>
                                 {trailer.name} ({trailer.channel})
@@ -245,19 +267,19 @@ export default function MovieForm({
                     </select>
                 )}
                 {errors.youtubeTrailerId && (
-                    <p className="text-red-600 text-sm mt-1">{errors.youtubeTrailerId.message}</p>
+                    <p className="text-red-600 text-sm mt-1" role="alert">{errors.youtubeTrailerId.message}</p>
                 )}
             </div>
 
             {/* Actors Multi select (predict al parcial) */}
             <fieldset>
                 <legend className="block text-sm font-medium text-gray-800 mb-2">
-                    Actors
+                    {t.movies.actorsLabel}
                 </legend>
                 {isLoadingRelations ? (
-                    <p className="text-gray-600">Loading actors...</p>
+                    <p className="text-gray-600" role="status">{t.movies.loadingActors}</p>
                 ) : actors.length === 0 ? (
-                    <p className="text-gray-600">No actors available</p>
+                    <p className="text-gray-600">{t.movies.noActorsAvailable}</p>
                 ) : (
                     <div className="bg-white border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
                         {actors.map((actor) => (
@@ -281,12 +303,12 @@ export default function MovieForm({
             {/* Platforms Multi select */}
             <fieldset>
                 <legend className="block text-sm font-medium text-gray-800 mb-2">
-                    Platforms
+                    {t.movies.platformsLabel}
                 </legend>
                 {isLoadingRelations ? (
-                    <p className="text-gray-600">Loading platforms...</p>
+                    <p className="text-gray-600" role="status">{t.movies.loadingPlatforms}</p>
                 ) : platforms.length === 0 ? (
-                    <p className="text-gray-600">No platforms available</p>
+                    <p className="text-gray-600">{t.movies.noPlatformsAvailable}</p>
                 ) : (
                     <div className="bg-white border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
                         {platforms.map((platform) => (
@@ -310,12 +332,12 @@ export default function MovieForm({
             {/* Prizes Multi-select (Optional) */}
             <fieldset>
                 <legend className="block text-sm font-medium text-gray-800 mb-2">
-                    Prizes (Optional)
+                    {t.movies.prizesOptional}
                 </legend>
                 {isLoadingRelations ? (
-                    <p className="text-gray-600">Loading prizes...</p>
+                    <p className="text-gray-600" role="status">{t.movies.loadingPrizes}</p>
                 ) : prizes.length === 0 ? (
-                    <p className="text-gray-600">No prizes available</p>
+                    <p className="text-gray-600">{t.movies.noPrizesAvailable}</p>
                 ) : (
                     <div className="bg-white border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
                         {prizes.map((prize) => (
@@ -340,8 +362,9 @@ export default function MovieForm({
                 type="submit"
                 disabled={isSubmitting}
                 className="bg-yellow-400 text-black font-bold py-2 px-6 rounded hover:bg-yellow-500 disabled:bg-gray-300"
+                aria-busy={isSubmitting}
             >
-                {isSubmitting ? "Saving..." : submitLabel}
+                {isSubmitting ? t.saving : submitLabel}
             </button>
         </form>
     );

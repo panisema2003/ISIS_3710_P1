@@ -7,9 +7,11 @@ import { deleteDirector } from "@/modules/directors/services/director.service";
 import Modal from "@/shared/ui/Modal";
 import Link from "next/link";
 import { useNotificationStore } from "@/shared/store/useNotificationStore";
+import { useI18n } from "@/shared/i18n/I18nContext";
 
 export default function DirectorsPage() {
     const { directors, isLoading, error } = useDirectors();
+    const { t } = useI18n();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDirector, setSelectedDirector] = useState<Director | null>(null);
@@ -31,7 +33,7 @@ export default function DirectorsPage() {
     const handleDelete = async () => {
         if (!selectedDirector) return;
         
-        if (!confirm(`Are you sure you want to delete "${selectedDirector.name}"?`)) {
+        if (!confirm(t.confirmDelete.replace("{name}", selectedDirector.name))) {
             return;
         }
 
@@ -39,42 +41,47 @@ export default function DirectorsPage() {
         setDeleteError(null);
         try {
             await deleteDirector(selectedDirector.id);
-            showNotification("Director deleted successfully!", "success");
+            showNotification(t.directors.deletedSuccess, "success");
             handleCloseModal();
             window.location.reload();
         } catch (err) {
-            setDeleteError(err instanceof Error ? err.message : "Failed to delete director");
-            showNotification("Failed to delete director.", "error");
+            setDeleteError(err instanceof Error ? err.message : t.directors.deleteError);
+            showNotification(t.directors.deleteError, "error");
         } finally {
             setIsDeleting(false);
         }
     }
 
     if (isLoading) {
-        return <div className="text-center p-8">Loading...</div>;
+        return <div className="text-center p-8" role="status" aria-live="polite">{t.loading}</div>;
     }
 
     if (error) {
-        return <div className="text-center p-8 text-red-500">Error: {error}</div>;
+        return <div className="text-center p-8 text-red-500" role="alert">{t.error}: {error}</div>;
     }
 
     return (
         <div className="container mx-auto p-8">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold">List of Directors</h1>
+                <h1 className="text-3xl font-bold">{t.directors.title}</h1>
                 <Link
                     href="/directors/new"
                     className="bg-yellow-400 text-black font-bold py-2 px-4 rounded hover:bg-yellow-500"
+                    aria-label={t.directors.newDirector}
                 >
-                    + New Director
+                    {t.directors.newDirector}
                 </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list">
                 {directors.map((director) => (
                     <div
                         key={director.id}
+                        role="listitem"
                         className="border rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
                         onClick={() => handleDirectorClick(director)}
+                        tabIndex={0}
+                        aria-label={director.name}
+                        onKeyDown={(e) => e.key === "Enter" && handleDirectorClick(director)}
                     >
                         <div className="h-48 overflow-hidden bg-gray-100">
                             <img
@@ -95,7 +102,7 @@ export default function DirectorsPage() {
             <Modal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
-                title={selectedDirector ? selectedDirector.name : "Director Details"}
+                title={selectedDirector ? selectedDirector.name : t.directors.directorDetails}
             >
                 {selectedDirector && (
                     <div className="space-y-4">
@@ -109,27 +116,28 @@ export default function DirectorsPage() {
 
                         <div className="space-y-2">
                             <div className="flex items-center gap-2">
-                                <span className="font-medium text-gray-700">Nationality:</span>
+                                <span className="font-medium text-gray-700">{t.directors.nationality}:</span>
                                 <span>{selectedDirector.nationality}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="font-medium text-gray-700">Birth Date:</span>
+                                <span className="font-medium text-gray-700">{t.directors.birthDate}:</span>
                                 <span>{new Date(selectedDirector.birthDate).toLocaleDateString()}</span>
                             </div>
                         </div>
 
                         <div>
-                            <h3 className="font-medium text-gray-700 mb-1">Biography</h3>
+                            <h3 className="font-medium text-gray-700 mb-1">{t.directors.biography}</h3>
                             <p className="text-gray-600 text-sm">{selectedDirector.biography}</p>
                         </div>
 
                         {selectedDirector.movies && selectedDirector.movies.length > 0 && (
                             <div>
-                                <h3 className="font-medium text-gray-700 mb-1">Movies Directed</h3>
-                                <div className="flex flex-wrap gap-2">
+                                <h3 className="font-medium text-gray-700 mb-1">{t.directors.moviesDirected}</h3>
+                                <div className="flex flex-wrap gap-2" role="list">
                                     {selectedDirector.movies.map((movie) => (
                                         <span
                                             key={movie.id}
+                                            role="listitem"
                                             className="bg-gray-100 text-gray-700 text-sm px-2 py-1 rounded"
                                         >
                                             {movie.title}
@@ -140,22 +148,24 @@ export default function DirectorsPage() {
                         )}
                         
                         {deleteError && (
-                            <p className="text-red-500 text-sm">{deleteError}</p>
+                            <p className="text-red-500 text-sm" role="alert">{deleteError}</p>
                         )}
 
                         <div className="flex gap-3 pt-2">
                             <Link
                                 href={`/directors/${selectedDirector.id}/edit`}
                                 className="bg-yellow-400 text-black font-bold py-2 px-4 rounded hover:bg-yellow-500"
+                                aria-label={`${t.edit} ${selectedDirector.name}`}
                             >
-                                Edit
+                                {t.edit}
                             </Link>
                             <button
                                 onClick={handleDelete}
                                 disabled={isDeleting}
+                                aria-label={`${t.delete} ${selectedDirector.name}`}
                                 className="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 disabled:bg-gray-300"
                             >
-                                {isDeleting ? "Deleting..." : "Delete"}
+                                {isDeleting ? t.deleting : t.delete}
                             </button>
                         </div>
                     </div>

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { fetchActorById, updateActor, addMovieToActor, removeMovieFromActor } from "../services/actor.service";
 import { useMovies } from "@/modules/movies/hooks/useMovies";
 import { useNotificationStore } from "@/shared/store/useNotificationStore";
+import { useI18n } from "@/shared/i18n/I18nContext";
 
 interface ActorEditPageProps {
     actorId: string;
@@ -20,6 +21,7 @@ export default function ActorEditPage({ actorId }: ActorEditPageProps) {
     const router = useRouter();
     const { movies, isLoading: isLoadingMovies } = useMovies();
     const showNotification = useNotificationStore((state) => state.showNotification);
+    const { t } = useI18n();
 
     // Load actor data on mount
     useEffect(() => {
@@ -37,13 +39,13 @@ export default function ActorEditPage({ actorId }: ActorEditPageProps) {
                     movieIds: actor.movies?.map((m) => m.id) || [], // Associate movies by their IDs iif they exist
                 });
             } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to load actor");
+                setError(err instanceof Error ? err.message : t.actors.loadError);
             } finally {
                 setIsLoading(false);
             }
         };
         loadActor();
-    }, [actorId]);
+    }, [actorId, t]);
 
     const handleUpdateActor = async (data: ActorFormData) => {
         setIsSubmitting(true);
@@ -72,11 +74,11 @@ export default function ActorEditPage({ actorId }: ActorEditPageProps) {
                 await addMovieToActor(actorId, movieId);
             }
             
-            showNotification("Actor updated successfully!", "success");
+            showNotification(t.actors.updatedSuccess, "success");
             router.push("/actors");
         } catch (err) {
-            setError(err instanceof Error ? err.message : "An unknown error occurred while updating the actor.");
-            showNotification("Failed to update actor.", "error");
+            setError(err instanceof Error ? err.message : t.actors.updateError);
+            showNotification(t.actors.updateError, "error");
         } finally {
             setIsSubmitting(false);
         }
@@ -84,24 +86,24 @@ export default function ActorEditPage({ actorId }: ActorEditPageProps) {
 
     if (isLoading) {
         return (
-            <main className="container mx-auto p-8">
-                <p>Loading actor...</p>
-            </main>
+            <section className="container mx-auto p-8" role="status" aria-live="polite">
+                <p>{t.loading}</p>
+            </section>
         );
     }
 
     if (error && !defaultValues) { // If an error or no default values (we failed to load the actor)
         return (
-            <main className="container mx-auto p-8">
-                <p className="text-red-500">Error: {error}</p>
-            </main>
+            <section className="container mx-auto p-8" role="alert">
+                <p className="text-red-500">{t.error}: {error}</p>
+            </section>
         );
     }
 
     return (
-        <main className="container mx-auto p-8">
-            <h1 className="text-3xl font-bold mb-6 text-red-600">Edit Actor</h1>
-            {error && <p className="text-red-500 mb-4">{error}</p>}
+        <section className="container mx-auto p-8" aria-labelledby="edit-actor-title">
+            <h1 id="edit-actor-title" className="text-3xl font-bold mb-6 text-red-600">{t.actors.editTitle}</h1>
+            {error && <p className="text-red-500 mb-4" role="alert">{error}</p>}
             <ActorForm
                 onSubmit={handleUpdateActor}
                 defaultValues={defaultValues}
@@ -109,6 +111,6 @@ export default function ActorEditPage({ actorId }: ActorEditPageProps) {
                 movies={movies}
                 isLoadingMovies={isLoadingMovies}
             />
-        </main>
+        </section>
     );
 }

@@ -6,6 +6,7 @@ import { GenreFormData } from "../validation/genre.schema";
 import { useRouter } from "next/navigation";
 import { fetchGenreById, updateGenre } from "../services/genre.service";
 import { useNotificationStore } from "@/shared/store/useNotificationStore";
+import { useI18n } from "@/shared/i18n/I18nContext";
 
 interface GenreEditPageProps {
     genreId: string;
@@ -18,6 +19,7 @@ export default function GenreEditPage({ genreId }: GenreEditPageProps) {
     const [defaultValues, setDefaultValues] = useState<GenreFormData | undefined>(undefined);
     const router = useRouter();
     const showNotification = useNotificationStore((state) => state.showNotification);
+    const { t } = useI18n();
 
     useEffect(() => {
         const loadGenre = async () => {
@@ -28,24 +30,24 @@ export default function GenreEditPage({ genreId }: GenreEditPageProps) {
                     type: genre.type,
                 });
             } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to load genre");
+                setError(err instanceof Error ? err.message : t.genres.loadError);
             } finally {
                 setIsLoading(false);
             }
         };
         loadGenre();
-    }, [genreId]);
+    }, [genreId, t]);
 
     const handleUpdateGenre = async (data: GenreFormData) => {
         setIsSubmitting(true);
         setError(null);
         try {
             await updateGenre(genreId, data);
-            showNotification("Genre updated successfully!", "success");
+            showNotification(t.genres.updatedSuccess, "success");
             router.push("/genres");
         } catch (err) {
-            setError(err instanceof Error ? err.message : "An unknown error occurred while updating the genre.");
-            showNotification("Failed to update genre.", "error");
+            setError(err instanceof Error ? err.message : t.genres.updateError);
+            showNotification(t.genres.updateError, "error");
         } finally {
             setIsSubmitting(false);
         }
@@ -53,29 +55,29 @@ export default function GenreEditPage({ genreId }: GenreEditPageProps) {
 
     if (isLoading) {
         return (
-            <main className="container mx-auto p-8">
-                <p>Loading genre...</p>
-            </main>
+            <section className="container mx-auto p-8" role="status" aria-live="polite">
+                <p>{t.genres.loadingGenre}</p>
+            </section>
         );
     }
 
     if (error && !defaultValues) {
         return (
-            <main className="container mx-auto p-8">
-                <p className="text-red-500">Error: {error}</p>
-            </main>
+            <section className="container mx-auto p-8" role="alert">
+                <p className="text-red-500">{t.error}: {error}</p>
+            </section>
         );
     }
 
     return (
-        <main className="container mx-auto p-8">
-            <h1 className="text-3xl font-bold mb-6">Edit Genre</h1>
-            {error && <p className="text-red-500 mb-4">{error}</p>}
+        <section className="container mx-auto p-8" aria-labelledby="edit-genre-title">
+            <h1 id="edit-genre-title" className="text-3xl font-bold mb-6">{t.genres.editTitle}</h1>
+            {error && <p className="text-red-500 mb-4" role="alert">{error}</p>}
             <GenreForm
                 onSubmit={handleUpdateGenre}
                 defaultValues={defaultValues}
                 isSubmitting={isSubmitting}
             />
-        </main>
+        </section>
     );
 }

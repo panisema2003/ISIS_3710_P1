@@ -12,6 +12,7 @@ import YoutubeTrailerForm from "@/modules/youtubeTrailers/ui/YoutubeTrailerForm"
 import { YoutubeTrailerFormData } from "@/modules/youtubeTrailers/validation/youtubeTrailer.schema";
 import { YoutubeTrailer } from "@/modules/youtubeTrailers/types/youtubeTrailer.type";
 import { useMovies } from "@/modules/movies/hooks/useMovies";
+import { useI18n } from "@/shared/i18n/I18nContext";
 
 interface YoutubeTrailerEditPageProps {
     trailerId: string;
@@ -20,6 +21,7 @@ interface YoutubeTrailerEditPageProps {
 export default function YoutubeTrailerEditPage({ trailerId }: YoutubeTrailerEditPageProps) {
     const router = useRouter();
     const { showNotification } = useNotificationStore();
+    const { t } = useI18n();
     
     const [trailer, setTrailer] = useState<YoutubeTrailer | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -34,7 +36,7 @@ export default function YoutubeTrailerEditPage({ trailerId }: YoutubeTrailerEdit
                 const data = await fetchYoutubeTrailerById(trailerId);
                 setTrailer(data);
             } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to load trailer");
+                setError(err instanceof Error ? err.message : t.trailers.loadError);
             } finally {
                 setIsLoading(false);
             }
@@ -53,16 +55,16 @@ export default function YoutubeTrailerEditPage({ trailerId }: YoutubeTrailerEdit
             await setTrailerMovie(trailerId, movieId);
         }
 
-        showNotification("Trailer updated successfully!", "success");
+        showNotification(t.trailers.updatedSuccess, "success");
         router.push("/youtube-trailers");
     };
 
     if (isLoading) {
-        return <div className="text-center p-8">Loading...</div>;
+        return <div className="text-center p-8" role="status" aria-live="polite">{t.loading}</div>;
     }
 
     if (error || !trailer) {
-        return <div className="text-center p-8 text-red-500">Error: {error || "Trailer not found"}</div>;
+        return <div className="text-center p-8 text-red-500" role="alert">{t.error}: {error || t.trailers.trailerNotFound}</div>;
     }
 
     const defaultValues: Partial<YoutubeTrailerFormData> = {
@@ -74,15 +76,15 @@ export default function YoutubeTrailerEditPage({ trailerId }: YoutubeTrailerEdit
     };
 
     return (
-        <div className="container mx-auto p-8">
-            <h1 className="text-3xl font-bold mb-6">Edit Trailer</h1>
+        <section className="container mx-auto p-8" aria-labelledby="edit-trailer-title">
+            <h1 id="edit-trailer-title" className="text-3xl font-bold mb-6">{t.trailers.editTitle}</h1>
             <YoutubeTrailerForm
                 onSubmit={handleSubmit}
-                submitLabel="Update Trailer"
+                submitLabel={t.trailers.updateTrailer}
                 defaultValues={defaultValues}
                 movies={movies}
                 isLoadingMovies={loadingMovies}
             />
-        </div>
+        </section>
     );
 }

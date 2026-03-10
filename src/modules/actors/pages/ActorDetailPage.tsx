@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Actor } from "@/modules/actors/types/actor.type";
 import { fetchActorById, deleteActor } from "@/modules/actors/services/actor.service";
 import { useNotificationStore } from "@/shared/store/useNotificationStore";
+import { useI18n } from "@/shared/i18n/I18nContext";
 
 interface ActorDetailPageProps {
     actorId: string;
@@ -15,6 +16,7 @@ interface ActorDetailPageProps {
 export default function ActorDetailPage({ actorId }: ActorDetailPageProps) {
     const router = useRouter();
     const { showNotification } = useNotificationStore();
+    const { t } = useI18n();
 
     const [actor, setActor] = useState<Actor | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -28,47 +30,46 @@ export default function ActorDetailPage({ actorId }: ActorDetailPageProps) {
                 const data = await fetchActorById(actorId);
                 setActor(data);
             } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to load actor");
+                setError(err instanceof Error ? err.message : t.actors.loadError);
             } finally {
                 setIsLoading(false);
             }
         };
         loadActor();
-    }, [actorId]);
+    }, [actorId, t.actors.loadError]);
 
     const handleDelete = async () => {
         if (!actor) return;
 
-        if (!confirm(`Are you sure you want to delete "${actor.name}"?`)) {
+        if (!confirm(t.confirmDelete.replace("{name}", actor.name))) {
             return;
         }
 
         setIsDeleting(true);
         try {
             await deleteActor(actor.id);
-            showNotification("Actor deleted successfully", "success");
+            showNotification(t.actors.deletedSuccess, "success");
             router.push("/actors");
         } catch (err) {
-            showNotification(err instanceof Error ? err.message : "Failed to delete actor", "error");
+            showNotification(err instanceof Error ? err.message : t.actors.deleteError, "error");
         } finally {
             setIsDeleting(false);
         }
     };
 
     if (isLoading) {
-        return <div className="text-center p-8">Loading actor details...</div>;
+        return <div className="text-center p-8" role="status" aria-live="polite">{t.loading}</div>;
     }
 
     if (error || !actor) {
         return (
-            <div className="text-center p-8">
-                <p className="text-red-500 mb-4">Error: {error || "Actor not found"}</p>
-                {/* Back arrow icon from tailwind docs */}
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+            <div className="text-center p-8" role="alert">
+                <p className="text-red-500 mb-4">{t.error}: {error || t.actors.actorNotFound}</p>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                 </svg>
                 <Link href="/actors" className="text-blue-600 hover:underline">
-                    Back to Actors
+                    {t.actors.backToActors}
                 </Link>
             </div>
         );
@@ -81,15 +82,14 @@ export default function ActorDetailPage({ actorId }: ActorDetailPageProps) {
 
     return (
         <div className="container mx-auto p-8">
-            {/* Back arrow icon from tailwind docs */}
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
             </svg>
             <Link href="/actors" className="text-blue-600 hover:underline mb-6 inline-block">
-                Back to Actors
+                {t.actors.backToActors}
             </Link>
 
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <article className="bg-white rounded-lg shadow-lg overflow-hidden" aria-label={actor.name}>
                 <div className="md:flex">
                     {/* Photo */}
                     <div className="md:w-1/3">
@@ -100,7 +100,7 @@ export default function ActorDetailPage({ actorId }: ActorDetailPageProps) {
                                 className="w-full h-96 md:h-full object-cover"
                             />
                         ) : (
-                            <div className="w-full h-96 md:h-full bg-gray-200 flex items-center justify-center">
+                            <div className="w-full h-96 md:h-full bg-gray-200 flex items-center justify-center" aria-hidden="true">
                                 <span className="text-gray-400 text-6xl">👤</span>
                             </div>
                         )}
@@ -114,15 +114,17 @@ export default function ActorDetailPage({ actorId }: ActorDetailPageProps) {
                                 <Link
                                     href={`/actors/${actor.id}/edit`}
                                     className="bg-yellow-400 text-black font-bold py-2 px-4 rounded hover:bg-yellow-500"
+                                    aria-label={`${t.edit} ${actor.name}`}
                                 >
-                                    Edit
+                                    {t.edit}
                                 </Link>
                                 <button
                                     onClick={handleDelete}
                                     disabled={isDeleting}
                                     className="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 disabled:bg-gray-300"
+                                    aria-label={`${t.delete} ${actor.name}`}
                                 >
-                                    {isDeleting ? "Deleting..." : "Delete"}
+                                    {isDeleting ? t.deleting : t.delete}
                                 </button>
                             </div>
                         </div>
@@ -130,35 +132,37 @@ export default function ActorDetailPage({ actorId }: ActorDetailPageProps) {
                         {/* Basic Info */}
                         <div className="grid grid-cols-2 gap-4 mb-6">
                             <div>
-                                <span className="text-gray-600 text-sm font-medium">Nationality</span>
+                                <span className="text-gray-600 text-sm font-medium">{t.actors.nationality}</span>
                                 <p className="font-semibold text-gray-900">{actor.nationality}</p>
                             </div>
                             <div>
-                                <span className="text-gray-600 text-sm font-medium">Birth Date</span>
+                                <span className="text-gray-600 text-sm font-medium">{t.actors.birthDate}</span>
                                 <p className="font-semibold text-gray-900">
-                                    {birthDate.toLocaleDateString()} ({age} years old)
+                                    {birthDate.toLocaleDateString()} ({age} {t.actors.yearsOld})
                                 </p>
                             </div>
                         </div>
 
                         {/* Biography */}
                         <div className="mb-6">
-                            <span className="text-gray-600 text-sm font-medium block mb-2">Biography</span>
+                            <span className="text-gray-600 text-sm font-medium block mb-2">{t.actors.biography}</span>
                             <p className="text-gray-800 leading-relaxed">{actor.biography}</p>
                         </div>
 
                         {/* Films */}
                         {actor.movies && actor.movies.length > 0 && (
-                            <div>
+                            <section aria-label={t.actors.filmography}>
                                 <span className="text-gray-600 text-sm font-medium block mb-3">
-                                    Filmography ({actor.movies.length} movies)
+                                    {t.actors.filmography} ({actor.movies.length} {t.actors.movies})
                                 </span>
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3" role="list">
                                     {actor.movies.map((movie) => (
                                         <Link
                                             key={movie.id}
                                             href={`/movies/${movie.id}`}
                                             className="flex items-center gap-3 p-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors border border-gray-200"
+                                            role="listitem"
+                                            aria-label={movie.title}
                                         >
                                             {movie.poster ? (
                                                 <img
@@ -167,7 +171,7 @@ export default function ActorDetailPage({ actorId }: ActorDetailPageProps) {
                                                     className="w-12 h-16 object-cover rounded"
                                                 />
                                             ) : (
-                                                <div className="w-12 h-16 bg-gray-300 rounded flex items-center justify-center">
+                                                <div className="w-12 h-16 bg-gray-300 rounded flex items-center justify-center" aria-hidden="true">
                                                     <span className="text-gray-500">🎬</span>
                                                 </div>
                                             )}
@@ -182,17 +186,16 @@ export default function ActorDetailPage({ actorId }: ActorDetailPageProps) {
                                         </Link>
                                     ))}
                                 </div>
-                            </div>
+                            </section>
                         )}
-                        {/* If our actor doesn't have movies :( */}
                         {(!actor.movies || actor.movies.length === 0) && (
                             <div className="text-center py-8 bg-gray-100 rounded-lg border border-gray-200">
-                                <p className="text-gray-600">No movies associated yet :v</p>
+                                <p className="text-gray-600">{t.actors.noMoviesAssociated}</p>
                             </div>
                         )}
                     </div>
                 </div>
-            </div>
+            </article>
         </div>
     );
 }

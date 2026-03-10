@@ -2,17 +2,19 @@
 
 import { useEffect } from "react";
 import { useNotificationStore } from "@/shared/store/useNotificationStore";
+import { useI18n } from "@/shared/i18n/I18nContext";
 
 export default function Notification() {
   const { message, type, hideNotification } = useNotificationStore();
+  const { t } = useI18n();
 
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => {
         hideNotification();
-      }, 5000); // Hide after 5 seconds
+      }, 5000);
 
-      return () => clearTimeout(timer); // Clear the timer if the component unmounts
+      return () => clearTimeout(timer);
     }
   }, [message, hideNotification]);
 
@@ -22,9 +24,19 @@ export default function Notification() {
 
   return (
     <div
-      className={`fixed top-5 right-5 p-4 rounded-lg text-white ${bgColor} z-50`}
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+      className={`fixed top-5 right-5 p-4 rounded-lg text-white ${bgColor} z-50 flex items-center gap-3`}
     >
-      {message}
+      <span>{message}</span>
+      <button
+        onClick={hideNotification}
+        className="ml-2 text-white hover:text-gray-200 font-bold"
+        aria-label={t.notification.close}
+      >
+        &times;
+      </button>
     </div>
   );
 }

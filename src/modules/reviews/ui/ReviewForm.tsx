@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { reviewSchema, ReviewFormData } from "@/modules/reviews/validation/review.schema";
+import { useI18n } from "@/shared/i18n/I18nContext";
 
 interface ReviewFormProps {
     onSubmit: (data: ReviewFormData) => Promise<void>;
@@ -15,6 +16,7 @@ export default function ReviewForm({
     submitLabel,
     defaultValues,
 }: ReviewFormProps) {
+    const { t } = useI18n();
     const {
         register,
         handleSubmit,
@@ -25,26 +27,29 @@ export default function ReviewForm({
     });
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-xl">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-xl" aria-label={t.reviews.title}>
             <div>
                 <label htmlFor="creator" className="block text-sm font-medium text-gray-800 mb-1">
-                    Your Name *
+                    {t.reviews.yourName} *
                 </label>
                 <input
                     type="text"
                     id="creator"
                     {...register("creator")}
+                    aria-required="true"
+                    aria-invalid={!!errors.creator}
+                    aria-describedby={errors.creator ? "creator-error" : undefined}
                     className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Your name"
+                    placeholder={t.reviews.namePlaceholder}
                 />
                 {errors.creator && (
-                    <p className="mt-1 text-sm text-red-600">{errors.creator.message}</p>
+                    <p id="creator-error" className="mt-1 text-sm text-red-600" role="alert">{errors.creator.message}</p>
                 )}
             </div>
 
             <div>
                 <label htmlFor="score" className="block text-sm font-medium text-gray-800 mb-1">
-                    Score (0-5) *
+                    {t.reviews.score} *
                 </label>
                 <input
                     type="number"
@@ -53,36 +58,43 @@ export default function ReviewForm({
                     min="0"
                     max="5"
                     {...register("score", { valueAsNumber: true })}
+                    aria-required="true"
+                    aria-invalid={!!errors.score}
+                    aria-describedby={errors.score ? "score-error" : undefined}
                     className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="4.5"
+                    placeholder={t.reviews.scorePlaceholder}
                 />
                 {errors.score && (
-                    <p className="mt-1 text-sm text-red-600">{errors.score.message}</p>
+                    <p id="score-error" className="mt-1 text-sm text-red-600" role="alert">{errors.score.message}</p>
                 )}
             </div>
 
             <div>
                 <label htmlFor="text" className="block text-sm font-medium text-gray-800 mb-1">
-                    Review Text *
+                    {t.reviews.reviewText} *
                 </label>
                 <textarea
                     id="text"
                     rows={4}
                     {...register("text")}
+                    aria-required="true"
+                    aria-invalid={!!errors.text}
+                    aria-describedby={errors.text ? "text-error" : undefined}
                     className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Write your review..."
+                    placeholder={t.reviews.textPlaceholder}
                 />
                 {errors.text && (
-                    <p className="mt-1 text-sm text-red-600">{errors.text.message}</p>
+                    <p id="text-error" className="mt-1 text-sm text-red-600" role="alert">{errors.text.message}</p>
                 )}
             </div>
 
             <button
                 type="submit"
                 disabled={isSubmitting}
+                aria-busy={isSubmitting}
                 className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                {isSubmitting ? "Saving..." : submitLabel}
+                {isSubmitting ? t.saving : submitLabel}
             </button>
         </form>
     );

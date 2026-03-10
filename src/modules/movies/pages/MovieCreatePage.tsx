@@ -6,6 +6,7 @@ import { createMovie, addActorToMovie, addPlatformToMovie, addPrizeToMovie } fro
 import { useNotificationStore } from "@/shared/store/useNotificationStore";
 import MovieForm from "@/modules/movies/ui/MovieForm";
 import { MovieFormData } from "@/modules/movies/validation/movie.schema";
+import { useI18n } from "@/shared/i18n/I18nContext";
 import { useActors } from "@/modules/actors/hooks/useActors";
 import { useDirectors } from "@/modules/directors/hooks/useDirectors";
 import { useGenres } from "@/modules/genres/hooks/useGenres";
@@ -17,6 +18,7 @@ import { usePrizes } from "@/modules/prizes/hooks/usePrizes";
 export default function MovieCreatePage() {
     const router = useRouter();
     const { showNotification } = useNotificationStore();
+    const { t } = useI18n();
     
     const { actors, isLoading: loadingActors } = useActors();
     const { directors, isLoading: loadingDirectors } = useDirectors();
@@ -78,20 +80,20 @@ export default function MovieCreatePage() {
                 }
             }
             
-            showNotification("Movie created successfully!", "success");
+            showNotification(t.movies.createdSuccess, "success");
             router.push("/movies");
         } catch (error) {
             console.error("Error creating movie:", error);
-            showNotification(error instanceof Error ? error.message : "Failed to create movie", "error");
+            showNotification(error instanceof Error ? error.message : t.movies.createError, "error");
         }
     };
 
     return (
-        <div className="container mx-auto p-8">
-            <h1 className="text-3xl font-bold mb-6 text-blue-600">Create New Movie</h1>
+        <section className="container mx-auto p-8" aria-labelledby="create-movie-title">
+            <h1 id="create-movie-title" className="text-3xl font-bold mb-6 text-blue-600">{t.movies.createTitle}</h1>
             <MovieForm
                 onSubmit={handleSubmit}
-                submitLabel="Create Movie"
+                submitLabel={t.movies.createMovie}
                 actors={actors}
                 directors={directors}
                 genres={genres}
@@ -101,6 +103,6 @@ export default function MovieCreatePage() {
                 prizes={prizes}
                 isLoadingRelations={isLoadingRelations}
             />
-        </div>
+        </section>
     );
 }
