@@ -8,7 +8,9 @@ import {
     addActorToMovie, 
     removeActorFromMovie,
     addPlatformToMovie,
-    removePlatformFromMovie
+    removePlatformFromMovie,
+    addPrizeToMovie,
+    removePrizeFromMovie
 } from "@/modules/movies/services/movie.service";
 import { useNotificationStore } from "@/shared/store/useNotificationStore";
 import MovieForm from "@/modules/movies/ui/MovieForm";
@@ -21,6 +23,7 @@ import { useGenres } from "@/modules/genres/hooks/useGenres";
 import { usePlatforms } from "@/modules/platforms/hooks/usePlatforms";
 import { useYoutubeTrailers } from "@/modules/youtubeTrailers/hooks/useYoutubeTrailers";
 import { useMovies } from "@/modules/movies/hooks/useMovies";
+import { usePrizes } from "@/modules/prizes/hooks/usePrizes";
 
 interface MovieEditPageProps {
     movieId: string;
@@ -41,6 +44,7 @@ export default function MovieEditPage({ movieId }: MovieEditPageProps) {
     const { platforms, isLoading: loadingPlatforms } = usePlatforms();
     const { youtubeTrailers, isLoading: loadingTrailers } = useYoutubeTrailers();
     const { movies, isLoading: loadingMovies } = useMovies();
+    const { prizes, isLoading: loadingPrizes } = usePrizes();
 
     // Get Ids of trailers already assigned to pthre movies, so they dont show 
     const usedTrailerIds = useMemo(() => {
@@ -49,7 +53,7 @@ export default function MovieEditPage({ movieId }: MovieEditPageProps) {
             .map((m) => m.youtubeTrailer!.id);
     }, [movies, movieId]);
 
-    const isLoadingRelations = loadingActors || loadingDirectors || loadingGenres || loadingPlatforms || loadingTrailers || loadingMovies;
+    const isLoadingRelations = loadingActors || loadingDirectors || loadingGenres || loadingPlatforms || loadingTrailers || loadingMovies || loadingPrizes;
 
     useEffect(() => {
         const loadMovie = async () => {
@@ -69,7 +73,7 @@ export default function MovieEditPage({ movieId }: MovieEditPageProps) {
     const handleSubmit = async (data: MovieFormData) => {
         if (!movie) return;
 
-        const { directorId, genreId, youtubeTrailerId, actorIds, platformIds, ...movieData } = data;
+        const { directorId, genreId, youtubeTrailerId, actorIds, platformIds, prizeIds, ...movieData } = data;
         
         const updatePayload = {
             ...movieData,
@@ -116,6 +120,22 @@ export default function MovieEditPage({ movieId }: MovieEditPageProps) {
             }
         }
 
+        // Handle prizes (m2m)
+        const currentPrizeIds = movie.prizes?.map(p => p.id) || [];
+        const newPrizeIds = prizeIds || [];
+
+        for (const prizeId of currentPrizeIds) {
+            if (!newPrizeIds.includes(prizeId)) {
+                await removePrizeFromMovie(movieId, prizeId);
+            }
+        }
+
+        for (const prizeId of newPrizeIds) {
+            if (!currentPrizeIds.includes(prizeId)) {
+                await addPrizeToMovie(movieId, prizeId);
+            }
+        }
+
         showNotification(t.movies.updatedSuccess, "success");
         router.push("/movies");
     };
@@ -140,6 +160,7 @@ export default function MovieEditPage({ movieId }: MovieEditPageProps) {
         youtubeTrailerId: movie.youtubeTrailer?.id,
         actorIds: movie.actors?.map(a => a.id) || [],
         platformIds: movie.platforms?.map(p => p.id) || [],
+        prizeIds: movie.prizes?.map(p => p.id) || [],
     };
 
     return (
@@ -156,6 +177,7 @@ export default function MovieEditPage({ movieId }: MovieEditPageProps) {
                 youtubeTrailers={youtubeTrailers}
                 usedTrailerIds={usedTrailerIds}
                 currentTrailerId={movie.youtubeTrailer?.id}
+                prizes={prizes}
                 isLoadingRelations={isLoadingRelations}
             />
         </section>

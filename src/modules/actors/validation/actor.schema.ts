@@ -7,7 +7,7 @@ export const ActorSchema = z.object({
     birthDate: z.string().min(1, "Birth date is required"),
     biography: z.string().min(1, "Biography is required"),
 
-    movieIds: z.array(z.string()).optional() // Optional array of movie IDssss
+    movieIds: z.array(z.string()).optional().catch(undefined) // Optional array of movie IDs
 
 });
 
